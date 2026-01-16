@@ -4,13 +4,13 @@ import { getFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDHDRqid66sXt4n-Rsled5pRE6umFRImQs",
-    authDomain: "binance-bot-x.firebaseapp.com",
-    projectId: "binance-bot-x",
-    storageBucket: "binance-bot-x.firebasestorage.app",
-    messagingSenderId: "883648805535",
-    appId: "1:883648805535:web:052573b26b8569b57ec0aa",
-    measurementId: "G-HWMRCS27HN"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize only once
