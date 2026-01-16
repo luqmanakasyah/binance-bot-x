@@ -9,7 +9,7 @@ import { DashboardHeader } from "@/components/DashboardHeader";
 import { StatsCards } from "@/components/StatsCards";
 import { BreakdownGrid } from "@/components/BreakdownGrid";
 import { PnLChart } from "@/components/PnLChart";
-import { ActivityTable } from "@/components/ActivityTable";
+import { ClosedPositionsTable } from "@/components/ClosedPositionsTable";
 import { DailyMetrics, LedgerEvent, LiveMetrics } from "@/types";
 
 export default function DashboardPage() {
@@ -49,8 +49,8 @@ export default function DashboardPage() {
             setDailyData(items);
         });
 
-        // 3. Ledger Events Listener (Last 50)
-        const qLedger = query(collection(db, "ledger_events"), orderBy("tsMs", "desc"), limit(50));
+        // 3. Ledger Events Listener (Last 100)
+        const qLedger = query(collection(db, "ledger_events"), orderBy("tsMs", "desc"), limit(100));
         const unsubLedger = onSnapshot(qLedger, (snap) => {
             const items: LedgerEvent[] = [];
             snap.forEach(d => items.push(d.data() as LedgerEvent));
@@ -85,7 +85,7 @@ export default function DashboardPage() {
                 {/* Chart & Table */}
                 <div className="grid gap-6 lg:grid-cols-2">
                     <PnLChart data={dailyData} />
-                    <ActivityTable events={events} />
+                    <ClosedPositionsTable events={events} />
                 </div>
             </main>
         </div>

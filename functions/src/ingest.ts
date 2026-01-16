@@ -258,18 +258,24 @@ async function updateLiveMetrics(t0Ms: number) {
         live.initialBalance = (histSnap.data() as HistState).baselineWalletBalanceUSDT || "0";
     }
 
-    // Win/Loss Calculation (Aggregate from all daily or Ledger Events?)
-    // Simpler: Fetch aggregate from LedgerEvents query for REALIZED_PNL
+    // Win/Loss Calculation (Aggregate from all ledger events with grouping)
     const allPnlSnaps = await db.collection("ledger_events")
         .where("incomeType", "==", "REALIZED_PNL")
-        .select("amount")
         .get();
+
+    const usageMap: Record<string, number> = {};
+
+    allPnlSnaps.forEach(d => {
+        const data = d.data();
+        const key = `${data.symbol}_${data.tsMs}`;
+        const val = parseFloat(data.amount);
+        usageMap[key] = (usageMap[key] || 0) + val;
+    });
 
     let w = 0;
     let l = 0;
-    allPnlSnaps.forEach(d => {
-        const val = parseFloat(d.data().amount);
-        if (val > 0) w++;
+    Object.values(usageMap).forEach(netPnl => {
+        if (netPnl > 0) w++;
         else l++;
     });
 
