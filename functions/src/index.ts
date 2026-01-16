@@ -14,6 +14,3 @@ export const refreshIncomeSinceCursor = functions.region("asia-southeast1").runW
     timeoutSeconds: 540,
     memory: "1GB"
 }).https.onCall(refreshIncomeHandler);
-
-import { dumpDataHandler } from "./dump";
-export const dumpFirestoreData = functions.region("asia-southeast1").https.onRequest(dumpDataHandler);

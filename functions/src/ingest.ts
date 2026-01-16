@@ -247,9 +247,9 @@ async function updateLiveMetrics(t0Ms: number) {
         funding7d: fmtDec(d7.funding),
         commission7d: fmtDec(d7.commission),
         transfer7d: fmtDec(d7.transfer),
-        initialBalance: live.initialBalance || "0", // Will be filled below
-        winCount: live.winCount || 0,
-        lossCount: live.lossCount || 0
+        initialBalance: "0", // Will be filled below
+        winCount: 0,
+        lossCount: 0
     };
 
     // Fill initialBalance from hist_state
