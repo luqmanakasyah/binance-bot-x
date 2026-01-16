@@ -30,18 +30,28 @@ export function DashboardHeader({ lastUpdated, trackingSince }: HeaderProps) {
         }
     };
 
-    <button
-        onClick={handleRefresh}
-        disabled={loading}
-        className={cn(
-            "flex items-center gap-2 rounded bg-yellow-500 px-4 py-2 font-semibold text-black hover:bg-yellow-400 disabled:opacity-50",
-            loading && "cursor-not-allowed"
-        )}
-    >
-        <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
-        {loading ? "Syncing..." : "Refresh"}
-    </button>
-            </div >
-        </div >
+    return (
+        <div className="flex flex-col gap-4 border-b border-gray-800 bg-gray-900 p-6 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h1 className="text-2xl font-bold text-white">Binance Futures PnL</h1>
+                <div className="flex gap-4 text-sm text-gray-400">
+                    <span>Tracking since: {trackingSince ? new Date(trackingSince).toLocaleDateString() : "--"}</span>
+                    <span>Last update: {lastUpdated ? new Date(lastUpdated).toLocaleString() : "--"}</span>
+                </div>
+            </div>
+            <div className="flex gap-2">
+                <button
+                    onClick={handleRefresh}
+                    disabled={loading}
+                    className={cn(
+                        "flex items-center gap-2 rounded bg-yellow-500 px-4 py-2 font-semibold text-black hover:bg-yellow-400 disabled:opacity-50",
+                        loading && "cursor-not-allowed"
+                    )}
+                >
+                    <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+                    {loading ? "Syncing..." : "Refresh"}
+                </button>
+            </div>
+        </div>
     );
 }
