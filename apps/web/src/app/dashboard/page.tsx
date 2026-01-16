@@ -77,7 +77,7 @@ export default function DashboardPage() {
 
             <main className="mx-auto max-w-7xl space-y-6 p-6">
                 {/* Top Stats */}
-                <StatsCards metrics={metrics} />
+                <StatsCards metrics={metrics} dailyData={dailyData} />
 
                 {/* Breakdowns */}
                 <BreakdownGrid metrics={metrics} />

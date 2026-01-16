@@ -57,7 +57,14 @@ export const initBaselineHandler = async (data: any, context: functions.https.Ca
         realisedPnl7d: "0",
         funding7d: "0",
         commission7d: "0",
-        transfer7d: "0"
+        transferToday: "0",
+        realisedPnl7d: "0",
+        funding7d: "0",
+        commission7d: "0",
+        transfer7d: "0",
+        initialBalance: balance, // Capture initial balance
+        winCount: 0,
+        lossCount: 0
     };
 
     const batch = db.batch();

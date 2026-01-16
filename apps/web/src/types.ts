@@ -12,6 +12,9 @@ export interface LiveMetrics {
     funding7d: string;
     commission7d: string;
     transfer7d: string;
+    initialBalance: string;
+    winCount: number;
+    lossCount: number;
 }
 
 export interface LedgerEvent {

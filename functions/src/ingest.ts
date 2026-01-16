@@ -246,8 +246,35 @@ async function updateLiveMetrics(t0Ms: number) {
         realisedPnl7d: fmtDec(d7.realisedPnl),
         funding7d: fmtDec(d7.funding),
         commission7d: fmtDec(d7.commission),
-        transfer7d: fmtDec(d7.transfer)
+        transfer7d: fmtDec(d7.transfer),
+        initialBalance: live.initialBalance || "0", // Will be filled below
+        winCount: live.winCount || 0,
+        lossCount: live.lossCount || 0
     };
+
+    // Fill initialBalance from hist_state
+    const histSnap = await db.collection("hist_state").doc("main").get();
+    if (histSnap.exists) {
+        live.initialBalance = (histSnap.data() as HistState).baselineWalletBalanceUSDT || "0";
+    }
+
+    // Win/Loss Calculation (Aggregate from all daily or Ledger Events?)
+    // Simpler: Fetch aggregate from LedgerEvents query for REALIZED_PNL
+    const allPnlSnaps = await db.collection("ledger_events")
+        .where("incomeType", "==", "REALIZED_PNL")
+        .select("amount")
+        .get();
+
+    let w = 0;
+    let l = 0;
+    allPnlSnaps.forEach(d => {
+        const val = parseFloat(d.data().amount);
+        if (val > 0) w++;
+        else l++;
+    });
+
+    live.winCount = w;
+    live.lossCount = l;
 
     await db.collection("metrics_live").doc("current").set(live);
 }

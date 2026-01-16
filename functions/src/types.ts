@@ -49,6 +49,9 @@ export interface LiveMetrics {
     funding7d: string;
     commission7d: string;
     transfer7d: string;
+    initialBalance: string;
+    winCount: number;
+    lossCount: number;
 }
 
 export type IncomeBucket = 'realisedPnl' | 'funding' | 'commission' | 'transfer' | 'other';
