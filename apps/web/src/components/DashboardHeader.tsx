@@ -5,7 +5,7 @@ import { RefreshCw, Settings } from "lucide-react";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
-import { formatDateTime } from "@/utils/format";
+import { formatDateTime, formatTimeAgo } from "@/utils/format";
 
 interface HeaderProps {
     lastUpdated?: number;
@@ -42,14 +42,8 @@ export function DashboardHeader({ lastUpdated, trackingSince, onOpenSettings, is
                     )}
                 </div>
 
-                <div className="flex items-center gap-4">
-                    {lastUpdated && (
-                        <span className="text-xs text-gray-400">
-                            Last updated: <span className="text-gray-300">{formatDateTime(lastUpdated)}</span>
-                        </span>
-                    )}
-
-                    <div className="flex items-center gap-2 border-l border-gray-800 pl-4">
+                <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-2">
                         <button
                             onClick={handleRefresh}
                             disabled={loading}
@@ -79,6 +73,12 @@ export function DashboardHeader({ lastUpdated, trackingSince, onOpenSettings, is
                             )}
                         </button>
                     </div>
+
+                    {lastUpdated && (
+                        <span className="text-xs text-gray-500">
+                            Last updated: <span className="text-gray-400">{formatTimeAgo(lastUpdated)}</span>
+                        </span>
+                    )}
                 </div>
             </div>
         </header>
