@@ -34,6 +34,7 @@ export interface DailyMetrics {
     count: number;
     updatedAt: number;
     balance?: string; // Snapshot of account balance at end of day (UTC)
+    pctChange?: string; // Daily percentage change from previous day's balance
 }
 
 export interface LiveMetrics {
