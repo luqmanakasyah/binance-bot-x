@@ -16,33 +16,32 @@ interface SettingsModalProps {
 }
 
 export function SettingsModal({ isOpen, onClose, currentRange, onApply }: SettingsModalProps) {
-    // Helpers to convert timestamp -> SGT string for input
-    const toSGTString = (ms: number | null) => {
+    // Helpers to convert timestamp -> UTC Date string (YYYY-MM-DD)
+    const toUTCString = (ms: number | null) => {
         if (!ms) return "";
-        // Offset +8h manually to get YYYY-MM-DDThh:mm string relative to UTC
-        // But Input datetime-local expects local time of the browser usually, OR strictly formatted string.
-        // If user says "SGT", we must treat input as SGT.
-        // Easiest: Parse string as ISO with +08:00 offset.
-
-        // Display: Convert UTC ms to SGT components
-        const d = new Date(ms + 8 * 3600 * 1000);
-        return d.toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+        // toISOString() is always UTC: "2026-01-17T..."
+        return new Date(ms).toISOString().slice(0, 10);
     };
 
-    const [startStr, setStartStr] = useState(toSGTString(currentRange.start));
-    const [endStr, setEndStr] = useState(toSGTString(currentRange.end));
+    const [startStr, setStartStr] = useState(toUTCString(currentRange.start));
+    const [endStr, setEndStr] = useState(toUTCString(currentRange.end));
 
     if (!isOpen) return null;
 
     const handleSave = () => {
-        const parseSGT = (str: string) => {
+        const parseUTC = (str: string, isEnd: boolean) => {
             if (!str) return null;
-            // Append +08:00 if standard ISO
-            return new Date(`${str}:00+08:00`).getTime();
+            // Force UTC midnight
+            // "2026-01-17" -> "2026-01-17T00:00:00.000Z" (Start)
+            // "2026-01-17" -> "2026-01-17T23:59:59.999Z" (End)
+
+            const dateStr = isEnd ? `${str}T23:59:59.999Z` : `${str}T00:00:00.000Z`;
+            const ms = new Date(dateStr).getTime();
+            return isNaN(ms) ? null : ms;
         };
 
-        const s = parseSGT(startStr);
-        const e = parseSGT(endStr);
+        const s = parseUTC(startStr, false);
+        const e = parseUTC(endStr, true);
 
         onApply({ start: s, end: e });
         onClose();
@@ -60,20 +59,20 @@ export function SettingsModal({ isOpen, onClose, currentRange, onApply }: Settin
 
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-400">Start Date (SGT)</label>
+                        <label className="text-sm font-medium text-gray-400">Start Date (UTC)</label>
                         <input
-                            type="datetime-local"
-                            className="w-full rounded border border-gray-700 bg-gray-950 px-3 py-2 text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none"
+                            type="date"
+                            className="w-full rounded border border-gray-700 bg-gray-950 px-3 py-2 text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none [color-scheme:dark]"
                             value={startStr}
                             onChange={(e) => setStartStr(e.target.value)}
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-400">End Date (SGT)</label>
+                        <label className="text-sm font-medium text-gray-400">End Date (UTC)</label>
                         <input
-                            type="datetime-local"
-                            className="w-full rounded border border-gray-700 bg-gray-950 px-3 py-2 text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none"
+                            type="date"
+                            className="w-full rounded border border-gray-700 bg-gray-950 px-3 py-2 text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none [color-scheme:dark]"
                             value={endStr}
                             onChange={(e) => setEndStr(e.target.value)}
                         />
