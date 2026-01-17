@@ -243,17 +243,9 @@ export default function DashboardPage() {
             <DashboardHeader
                 lastUpdated={displayData.metrics?.lastUpdatedAt}
                 trackingSince={displayData.metrics?.trackingSinceMs}
+                onOpenSettings={() => setIsSettingsOpen(true)}
+                isFilterActive={!!(dateRange.start || dateRange.end)}
             />
-            {/* Settings Trigger (could be in header, but putting here for now or adding button) */}
-            <div className="mx-auto max-w-7xl px-6 pt-4 flex justify-end">
-                <button
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-900 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800"
-                >
-                    <span>⚙️ Settings / Filter</span>
-                    {(dateRange.start || dateRange.end) && <span className="ml-2 rounded bg-blue-600 px-2 py-0.5 text-xs text-white">Active</span>}
-                </button>
-            </div>
 
             <main className="mx-auto max-w-7xl space-y-6 p-6">
                 {/* Top Stats */}
