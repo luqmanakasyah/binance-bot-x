@@ -43,6 +43,8 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     const winRate = totalTrades > 0 ? wins / totalTrades : 0;
 
     // Sharpe
+    const sharpe = calculateSharpe(dailyData || []);
+
     // CDGR
     const days = dailyData?.length || 0;
     const cdgr = days > 0 ? (Math.pow(1 + growthPct, 1 / days) - 1) : 0;
