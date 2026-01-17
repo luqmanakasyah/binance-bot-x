@@ -29,4 +29,11 @@ export interface LedgerEvent {
 export interface DailyMetrics {
     date: string;
     net: string;
+    realisedPnl: string;
+    funding: string;
+    commission: string;
+    transfer: string;
+    other: string;
+    count: number;
+    updatedAt: number;
 }

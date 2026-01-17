@@ -10,7 +10,6 @@ import { PnLChart } from "@/components/PnLChart";
 import { ClosedPositionsTable } from "@/components/ClosedPositionsTable";
 import { SettingsModal } from "@/components/SettingsModal";
 import { DailyMetrics, LedgerEvent, LiveMetrics } from "@/types";
-import { classifyIncome } from "@/utils/classify"; // We need this utility on client or duplicate logic
 
 // Duplicate classify logic here if not available on client
 function classify(type: string): string {
