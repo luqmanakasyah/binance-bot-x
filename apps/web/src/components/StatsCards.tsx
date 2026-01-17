@@ -55,7 +55,7 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Row 1: PnL Stats */}
+            {/* Row 1: Total PnL */}
             <div className="grid gap-4 md:grid-cols-3">
                 {/* First Panel: Total PnL (%) */}
                 <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
@@ -67,19 +67,16 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
                     </div>
                 </div>
 
-                <Card title="Net Today" value={netToday} fmt={formatCurrency} />
-                <Card title="Net Last 7 Days" value={net7d} fmt={formatCurrency} />
-            </div>
-
-            {/* Row 2: Ratios (2-col) */}
-            <div className="grid gap-4 md:grid-cols-2">
+                {/* Win Ratio */}
                 <Card title="Win Ratio" value={winRate} fmt={formatPercent}
                     forceColor={winRate >= 0.5 ? "text-green-400" : "text-yellow-400"}
                     sub={`(${wins}W / ${losses}L)`} />
 
-                <Card title="Sharpe Ratio (Annualized)" value={sharpe} fmt={(v) => v.toFixed(2)}
+                {/* Sharpe Ratio */}
+                <Card title="Sharpe Ratio (Ann.)" value={sharpe} fmt={(v) => v.toFixed(2)}
                     forceColor={sharpe > 1 ? "text-green-400" : sharpe > 0 ? "text-blue-400" : "text-gray-400"} />
             </div>
+
         </div>
     );
 }
