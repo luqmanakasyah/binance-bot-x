@@ -60,14 +60,38 @@ export default function DashboardPage() {
         let wins = 0;
         let losses = 0;
 
+        // Calculate Balance Offset (PnL before Start Date)
+        // We assume 'events' contains enough history. If > 2000 events, this might be inaccurate without backend aggregation.
+        let preRangeNet = 0;
+
+        // Iterate ALL events to classify them into Pre-Range or In-Range
+        // Note: 'events' are ordered desc, so we iterate and check. 
+        // More efficient:
+
         // Grouping for Win/Loss (Symbol_Time)
         const closedPosMap: Record<string, number> = {};
+        const filteredEvents: LedgerEvent[] = []; // Re-declare filteredEvents here
 
-        filteredEvents.forEach(e => {
+        events.forEach(e => {
             const val = parseFloat(e.amount);
             const cat = classify(e.incomeType);
 
-            // Net PnL (everything except Transfer)
+            if (e.tsMs < start) {
+                // Event happened BEFORE the range -> Contributes to Initial Balance for the range
+                // Transfers definitely count towards balance.
+                if (cat !== 'other') { // Realized, Funding, Commission, Transfer
+                    preRangeNet += val;
+                }
+                return;
+            }
+
+            if (e.tsMs > end) {
+                // Event happened AFTER the range -> Ignore
+                return;
+            }
+
+            // In Range
+            filteredEvents.push(e); // Add to filtered events for table/chart
             if (cat !== 'transfer') {
                 net += val;
             }
@@ -85,13 +109,18 @@ export default function DashboardPage() {
             }
         });
 
+        // Adjust Initial Balance
+        // Global Initial + Pre-Range Net (including transfers)
+        const globalInitial = parseFloat(metrics?.initialBalance || "0");
+        const adjustedInitial = globalInitial + preRangeNet;
+
         // Calc Wins/Losses
         Object.values(closedPosMap).forEach(pnl => {
             if (pnl > 0) wins++;
             else losses++;
         });
 
-        // Recalc Daily (Simplified aggregation for Chart)
+        // Recalc Daily (Simplified aggregation for Chart) - Only for In-Range events
         const dailyMap: Record<string, DailyMetrics> = {};
         // We need to iterate filteredEvents ascending to build graph? Or filtered dailyData?
         // Using events is more accurate for arbitrary ranges.
@@ -130,7 +159,7 @@ export default function DashboardPage() {
             funding7d: "0",
             commission7d: "0",
             transfer7d: "0",
-            initialBalance: metrics?.initialBalance || "0", // Keep global initial?
+            initialBalance: adjustedInitial.toFixed(8), // UPDATED
             winCount: wins,
             lossCount: losses
         };
