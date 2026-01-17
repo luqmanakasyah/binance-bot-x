@@ -64,14 +64,12 @@ export function ClosedPositionsTable({ events }: { events: LedgerEvent[] }) {
                             <th className="px-4 py-3">Time</th>
                             <th className="px-4 py-3">Symbol</th>
                             <th className="px-4 py-3 text-right">Realised PnL</th>
-                            <th className="px-4 py-3 text-right">Close Fees</th>
-                            <th className="px-4 py-3 text-right">Duration</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-800">
                         {positions.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-4 py-4 text-center text-gray-600">
+                                <td colSpan={3} className="px-4 py-4 text-center text-gray-600">
                                     No closed positions found in recent events.
                                 </td>
                             </tr>
@@ -83,12 +81,6 @@ export function ClosedPositionsTable({ events }: { events: LedgerEvent[] }) {
                                     <td className={`px-4 py-3 text-right font-medium ${pos.pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                         {pos.pnl > 0 ? "+" : ""}{formatCurrency(pos.pnl)}
                                     </td>
-                                    <td className="px-4 py-3 text-right text-red-300">
-                                        {formatCurrency(pos.commission)}
-                                    </td>
-                                    <td className="px-4 py-3 text-right text-gray-600">
-                                        —
-                                    </td>
                                 </tr>
                             ))
                         )}
@@ -96,7 +88,7 @@ export function ClosedPositionsTable({ events }: { events: LedgerEvent[] }) {
                 </table>
             </div>
             <p className="mt-2 text-xs text-gray-600">
-                * Duration and Open-Fees are not currently tracked. Fees shown are closing commissions.
+                * PnL shown is gross Realised PnL.
             </p>
         </div>
     );
