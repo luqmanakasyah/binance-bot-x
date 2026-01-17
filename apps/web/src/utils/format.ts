@@ -2,17 +2,18 @@
 export function formatDate(ms: number | string | Date): string {
     const d = new Date(ms);
     if (isNaN(d.getTime())) return "-";
-    // Format: DD-MMM-YYYY (e.g., 17-Jan-2026)
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
+    // Format: DD-MMM-YYYY (UTC)
+    return d.toUTCString().split(' ').slice(1, 4).join('-');
 }
 
 export function formatDateTime(ms: number | string | Date): string {
     const d = new Date(ms);
     if (isNaN(d.getTime())) return "-";
-    // Format: DD-MMM-YYYY HH:mm
+    // Format: DD-MMM-YYYY HH:mm (UTC)
     const datePart = formatDate(d);
-    const timePart = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
-    return `${datePart} ${timePart}`;
+    const hour = d.getUTCHours().toString().padStart(2, '0');
+    const min = d.getUTCMinutes().toString().padStart(2, '0');
+    return `${datePart} ${hour}:${min}`;
 }
 
 export function formatTimeAgo(ms: number | undefined): string {

@@ -195,8 +195,41 @@ export const refreshIncomeHandler = async (data: any, context: functions.https.C
 
     await updateLiveMetrics(state.t0Ms);
 
+    // Recalculate balances to ensure we have snapshots
+    await recalcDailyBalances();
+
     return { newEvents: newEvents.length, newCursorMs: maxTs };
 };
+
+export async function recalcDailyBalances() {
+    // 1. Get Init Baseline
+    const histSnap = await db.collection("hist_state").doc("main").get();
+    if (!histSnap.exists) return;
+    const baseline = toDecimal((histSnap.data() as HistState).baselineWalletBalanceUSDT || "0");
+
+    // 2. Get All Daily Docs (ASC)
+    const dailySnaps = await db.collection("daily").orderBy("date", "asc").get();
+
+    let runningBalance = baseline;
+    const batch = db.batch();
+
+    dailySnaps.forEach(doc => {
+        const data = doc.data() as DailyMetrics;
+        const net = toDecimal(data.net);
+        runningBalance = runningBalance.plus(net);
+
+        // Update doc with balance if changed
+        // We cast to any to update specific field or assuming DailyMetrics has optional balance?
+        // Let's add 'balance' to DailyMetrics type efficiently via any for now or update type def.
+        const currentStored = data.balance ? toDecimal(data.balance) : new Decimal(-999999);
+
+        if (!currentStored.equals(runningBalance)) {
+            batch.update(doc.ref, { balance: fmtDec(runningBalance) });
+        }
+    });
+
+    await batch.commit();
+}
 
 async function updateLiveMetrics(t0Ms: number) {
     const now = new Date();

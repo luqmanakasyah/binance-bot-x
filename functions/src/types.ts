@@ -33,6 +33,7 @@ export interface DailyMetrics {
     other: string;
     count: number;
     updatedAt: number;
+    balance?: string; // Snapshot of account balance at end of day (UTC)
 }
 
 export interface LiveMetrics {
