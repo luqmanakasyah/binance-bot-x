@@ -49,6 +49,10 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     const days = dailyData?.length || 0;
     const cdgr = days > 0 ? (Math.pow(1 + growthPct, 1 / days) - 1) : 0;
 
+    // Projected Growth
+    const projected30d = Math.pow(1 + cdgr, 30) - 1;
+    const projectedAnnual = Math.pow(1 + cdgr, 365) - 1;
+
     // Helper to format PnL with percentage
     const formatPnlWithPct = (pnl: number, pct: number) => {
         const sign = pnl >= 0 ? "+" : "-";
@@ -60,7 +64,7 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     return (
         <div className="flex flex-col gap-4">
             {/* Row 1: Total PnL */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-3">
                 {/* First Panel: Total PnL (%) */}
                 <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
                     <h3 className="text-sm font-medium text-gray-400">Total PnL (%)</h3>
@@ -83,6 +87,14 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
                 {/* CDGR */}
                 <Card title="CDGR" value={cdgr} fmt={formatPercent}
                     forceColor={cdgr > 0 ? "text-green-400" : cdgr < 0 ? "text-red-400" : "text-gray-400"} />
+
+                {/* 30-Day Projected */}
+                <Card title="30-Day Projected" value={projected30d} fmt={formatPercent}
+                    forceColor={projected30d > 0 ? "text-green-400" : projected30d < 0 ? "text-red-400" : "text-gray-400"} />
+
+                {/* Annual Projected */}
+                <Card title="Annual Projected" value={projectedAnnual} fmt={formatPercent}
+                    forceColor={projectedAnnual > 0 ? "text-green-400" : projectedAnnual < 0 ? "text-red-400" : "text-gray-400"} />
             </div>
 
         </div>
