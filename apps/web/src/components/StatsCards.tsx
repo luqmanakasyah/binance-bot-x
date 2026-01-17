@@ -47,7 +47,7 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
 
     // Helper to format PnL with percentage
     const formatPnlWithPct = (pnl: number, pct: number) => {
-        const sign = pnl >= 0 ? "+" : "";
+        const sign = pnl >= 0 ? "+" : "-";
         const pnlStr = formatCurrency(Math.abs(pnl));
         const pctStr = formatPercent(Math.abs(pct));
         return `${sign}${pnlStr} (${sign}${pctStr})`;
