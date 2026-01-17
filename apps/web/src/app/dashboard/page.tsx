@@ -49,7 +49,7 @@ export default function DashboardPage() {
         // Filter events
         const start = dateRange.start || 0;
         const end = dateRange.end || Date.now();
-        const filteredEvents = events.filter(e => e.tsMs >= start && e.tsMs <= end);
+        // REMOVED simple filter: const filteredEvents = events.filter(e => e.tsMs >= start && e.tsMs <= end);
 
         // Recalculate Metrics
         let net = 0;
