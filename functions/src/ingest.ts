@@ -210,6 +210,7 @@ export async function recalcDailyBalances() {
     // 2. Get All Daily Docs (ASC)
     const dailySnaps = await db.collection("daily").orderBy("date", "asc").get();
 
+    let prevBalance = baseline;
     let runningBalance = baseline;
     const batch = db.batch();
 
@@ -218,14 +219,20 @@ export async function recalcDailyBalances() {
         const net = toDecimal(data.net);
         runningBalance = runningBalance.plus(net);
 
-        // Update doc with balance if changed
-        // We cast to any to update specific field or assuming DailyMetrics has optional balance?
-        // Let's add 'balance' to DailyMetrics type efficiently via any for now or update type def.
-        const currentStored = data.balance ? toDecimal(data.balance) : new Decimal(-999999);
-
-        if (!currentStored.equals(runningBalance)) {
-            batch.update(doc.ref, { balance: fmtDec(runningBalance) });
+        // Calculate percentage change from previous day's balance
+        let pctChange = new Decimal(0);
+        if (!prevBalance.isZero()) {
+            pctChange = runningBalance.minus(prevBalance).dividedBy(prevBalance);
         }
+
+        // Update doc with balance and pctChange
+        batch.update(doc.ref, {
+            balance: fmtDec(runningBalance),
+            pctChange: fmtDec(pctChange)
+        });
+
+        // Update prevBalance for next iteration
+        prevBalance = runningBalance;
     });
 
     await batch.commit();
