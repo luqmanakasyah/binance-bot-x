@@ -43,7 +43,9 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     const winRate = totalTrades > 0 ? wins / totalTrades : 0;
 
     // Sharpe
-    const sharpe = calculateSharpe(dailyData || []);
+    // CDGR
+    const days = dailyData?.length || 0;
+    const cdgr = days > 0 ? (Math.pow(1 + growthPct, 1 / days) - 1) : 0;
 
     // Helper to format PnL with percentage
     const formatPnlWithPct = (pnl: number, pct: number) => {
@@ -56,7 +58,7 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     return (
         <div className="flex flex-col gap-4">
             {/* Row 1: Total PnL */}
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {/* First Panel: Total PnL (%) */}
                 <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
                     <h3 className="text-sm font-medium text-gray-400">Total PnL (%)</h3>
@@ -75,6 +77,10 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
                 {/* Sharpe Ratio */}
                 <Card title="Sharpe Ratio (Ann.)" value={sharpe} fmt={(v) => v.toFixed(2)}
                     forceColor={sharpe > 1 ? "text-green-400" : sharpe > 0 ? "text-blue-400" : "text-gray-400"} />
+
+                {/* CDGR */}
+                <Card title="CDGR" value={cdgr} fmt={formatPercent}
+                    forceColor={cdgr > 0 ? "text-green-400" : cdgr < 0 ? "text-red-400" : "text-gray-400"} />
             </div>
 
         </div>
