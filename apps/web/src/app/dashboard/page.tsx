@@ -32,7 +32,30 @@ export default function DashboardPage() {
 
     // Filter State
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    // Initialize dateRange from localStorage if possible, or null.
+    // Since this is client-side only (useEffect), we start with null to match server, then update.
     const [dateRange, setDateRange] = useState<{ start: number | null, end: number | null }>({ start: null, end: null });
+
+    // Load persisted settings on mount
+    useEffect(() => {
+        const stored = localStorage.getItem("dashboard_settings_range");
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                // Simple validation
+                if (parsed && (typeof parsed.start === 'number' || parsed.start === null)) {
+                    setDateRange(parsed);
+                }
+            } catch (e) {
+                console.error("Failed to parse settings", e);
+            }
+        }
+    }, []);
+
+    const handleApplySettings = (range: { start: number | null, end: number | null }) => {
+        setDateRange(range);
+        localStorage.setItem("dashboard_settings_range", JSON.stringify(range));
+    };
 
     // Raw Data
     const [metrics, setMetrics] = useState<LiveMetrics | undefined>(undefined);
@@ -250,7 +273,7 @@ export default function DashboardPage() {
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
                 currentRange={dateRange}
-                onApply={setDateRange}
+                onApply={handleApplySettings}
             />
         </div>
     );
