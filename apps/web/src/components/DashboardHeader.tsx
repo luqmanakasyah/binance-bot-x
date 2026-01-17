@@ -5,6 +5,7 @@ import { RefreshCw } from "lucide-react";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
+import { formatDateTime } from "@/utils/format";
 
 interface HeaderProps {
     lastUpdated?: number;
@@ -22,6 +23,8 @@ export function DashboardHeader({ lastUpdated, trackingSince }: HeaderProps) {
             // We'll call refreshIncomeSinceCursor.
             const refreshFn = httpsCallable(functions, "refreshIncomeSinceCursor");
             await refreshFn();
+            // Reload page to reflect changes? Or wait for Firestore snapshot?
+            // Snapshot should update auto. But we might want to reload purely for visual confirmation or if snapshot is lazy.
         } catch (e: any) {
             console.error(e);
             alert("Refresh failed: " + e.message);
@@ -31,27 +34,33 @@ export function DashboardHeader({ lastUpdated, trackingSince }: HeaderProps) {
     };
 
     return (
-        <div className="flex flex-col gap-4 border-b border-gray-800 bg-gray-900 p-6 md:flex-row md:items-center md:justify-between">
-            <div>
-                <h1 className="text-2xl font-bold text-white">Binance Futures PnL</h1>
-                <div className="flex gap-4 text-sm text-gray-400">
-                    <span>Tracking since: {trackingSince ? new Date(trackingSince).toLocaleDateString() : "--"}</span>
-                    <span>Last update: {lastUpdated ? new Date(lastUpdated).toLocaleString() : "--"}</span>
+        <header className="border-b border-gray-800 bg-gray-900 px-6 py-4">
+            <div className="mx-auto flex max-w-7xl items-center justify-between">
+                <div>
+                    <h1 className="text-2xl font-bold text-white">Performance Dashboard</h1>
+                    <div className="flex items-center gap-4 text-xs text-gray-400">
+                        {trackingSince && (
+                            <span>Tracking since: <span className="text-gray-300">{formatDateTime(trackingSince)}</span></span>
+                        )}
+                        {lastUpdated && (
+                            <span>Last updated: <span className="text-gray-300">{formatDateTime(lastUpdated)}</span></span>
+                        )}
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={handleRefresh}
+                        disabled={loading}
+                        className={cn(
+                            "flex items-center gap-2 rounded bg-yellow-500 px-4 py-2 font-semibold text-black hover:bg-yellow-400 disabled:opacity-50",
+                            loading && "cursor-not-allowed"
+                        )}
+                    >
+                        <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+                        {loading ? "Syncing..." : "Refresh"}
+                    </button>
                 </div>
             </div>
-            <div className="flex gap-2">
-                <button
-                    onClick={handleRefresh}
-                    disabled={loading}
-                    className={cn(
-                        "flex items-center gap-2 rounded bg-yellow-500 px-4 py-2 font-semibold text-black hover:bg-yellow-400 disabled:opacity-50",
-                        loading && "cursor-not-allowed"
-                    )}
-                >
-                    <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
-                    {loading ? "Syncing..." : "Refresh"}
-                </button>
-            </div>
-        </div>
+        </header>
     );
 }

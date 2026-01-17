@@ -1,13 +1,10 @@
 
 import { LedgerEvent } from "@/types";
 import { useMemo } from "react";
+import { formatDateTime } from "@/utils/format";
 
 function formatCurrency(val: number) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
-}
-
-function formatDate(ms: number) {
-    return new Date(ms).toLocaleString();
 }
 
 interface ClosedPosition {
@@ -81,7 +78,7 @@ export function ClosedPositionsTable({ events }: { events: LedgerEvent[] }) {
                         ) : (
                             positions.map((pos) => (
                                 <tr key={pos.id} className="hover:bg-gray-800/50">
-                                    <td className="px-4 py-3">{formatDate(pos.closeTime)}</td>
+                                    <td className="px-4 py-3 text-gray-300">{formatDateTime(pos.closeTime)}</td>
                                     <td className="px-4 py-3 font-medium text-white">{pos.symbol}</td>
                                     <td className={`px-4 py-3 text-right font-medium ${pos.pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                         {pos.pnl > 0 ? "+" : ""}{formatCurrency(pos.pnl)}
