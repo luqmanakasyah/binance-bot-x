@@ -45,25 +45,40 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     // Sharpe
     const sharpe = calculateSharpe(dailyData || []);
 
+    // Helper to format PnL with percentage
+    const formatPnlWithPct = (pnl: number, pct: number) => {
+        const sign = pnl >= 0 ? "+" : "";
+        const pnlStr = formatCurrency(Math.abs(pnl));
+        const pctStr = formatPercent(Math.abs(pct));
+        return `${sign}${pnlStr} (${sign}${pctStr})`;
+    };
+
     return (
         <div className="flex flex-col gap-4">
             {/* Row 1: PnL Stats */}
             <div className="grid gap-4 md:grid-cols-3">
-                <Card title="Total Net (Since T0)" value={netTotal} fmt={formatCurrency} />
+                {/* First Panel: Total PnL (%) */}
+                <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
+                    <h3 className="text-sm font-medium text-gray-400">Total PnL (%)</h3>
+                    <div className="mt-2">
+                        <span className={`text-3xl font-bold ${netTotal >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {formatPnlWithPct(netTotal, growthPct)}
+                        </span>
+                    </div>
+                </div>
+
                 <Card title="Net Today" value={netToday} fmt={formatCurrency} />
                 <Card title="Net Last 7 Days" value={net7d} fmt={formatCurrency} />
             </div>
 
-            {/* Row 2: Ratios & Growth */}
-            <div className="grid gap-4 md:grid-cols-3">
+            {/* Row 2: Ratios (2-col) */}
+            <div className="grid gap-4 md:grid-cols-2">
                 <Card title="Win Ratio" value={winRate} fmt={formatPercent}
                     forceColor={winRate >= 0.5 ? "text-green-400" : "text-yellow-400"}
                     sub={`(${wins}W / ${losses}L)`} />
 
                 <Card title="Sharpe Ratio (Annualized)" value={sharpe} fmt={(v) => v.toFixed(2)}
                     forceColor={sharpe > 1 ? "text-green-400" : sharpe > 0 ? "text-blue-400" : "text-gray-400"} />
-
-                <Card title="Total Growth" value={growthPct} fmt={formatPercent} />
             </div>
         </div>
     );
