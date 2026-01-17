@@ -52,9 +52,23 @@ export function SettingsModal({ isOpen, onClose, currentRange, onApply }: Settin
         onClose();
     };
 
+    // Display helper: Convert YYYY-MM-DD -> DD-MMM-YYYY
+    const formatDisplay = (isoDate: string) => {
+        if (!isoDate) return "";
+        try {
+            // isoDate is YYYY-MM-DD. We want to treat it as UTC or just parse components.
+            // new Date("2026-01-17") is UTC usually.
+            const d = new Date(isoDate);
+            if (isNaN(d.getTime())) return "";
+            return d.toUTCString().split(' ').slice(1, 4).join('-');
+        } catch (e) {
+            return "";
+        }
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-xl border border-gray-800 bg-gray-900 p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+            <div className="w-full max-w-sm sm:max-w-md rounded-xl border border-gray-800 bg-gray-900 p-6 shadow-2xl">
                 <h2 className="mb-4 text-xl font-bold text-white">Dashboard Settings</h2>
 
                 <div className="space-y-4">
@@ -66,6 +80,7 @@ export function SettingsModal({ isOpen, onClose, currentRange, onApply }: Settin
                             value={startStr}
                             onChange={(e) => setStartStr(e.target.value)}
                         />
+                        {startStr && <p className="text-xs text-blue-400">Selected: {formatDisplay(startStr)}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -76,22 +91,23 @@ export function SettingsModal({ isOpen, onClose, currentRange, onApply }: Settin
                             value={endStr}
                             onChange={(e) => setEndStr(e.target.value)}
                         />
+                        {endStr && <p className="text-xs text-blue-400">Selected: {formatDisplay(endStr)}</p>}
                         <p className="text-xs text-gray-600">Leave empty to include up to now.</p>
                     </div>
                 </div>
 
-                <div className="mt-8 flex justify-end gap-3">
+                <div className="mt-8 flex flex-wrap justify-end gap-3">
                     <button
                         onClick={handleClear}
                         className="rounded px-4 py-2 text-sm font-medium text-gray-400 hover:text-white"
                     >
-                        Reset to All Time
+                        Reset
                     </button>
                     <button
                         onClick={handleSave}
                         className="rounded bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500"
                     >
-                        Apply Filter
+                        Apply
                     </button>
                     <button
                         onClick={onClose}
