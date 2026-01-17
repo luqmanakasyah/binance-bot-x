@@ -63,6 +63,8 @@ export const refreshIncomeHandler = async (data: any, context: functions.https.C
     const usdtEvents = fetchedEvents.filter((e: any) => e.asset === "USDT");
 
     if (usdtEvents.length === 0) {
+        // Still recalc balances in case previous runs missed it
+        await recalcDailyBalances();
         return { message: "No new events", count: 0 };
     }
 
@@ -85,6 +87,8 @@ export const refreshIncomeHandler = async (data: any, context: functions.https.C
             cursorMs: maxTs,
             lastUpdatedAt: Date.now()
         });
+        // Still recalc balances in case previous runs missed it
+        await recalcDailyBalances();
         return { message: "No new events (duplicates skipped)", count: 0 };
     }
 
