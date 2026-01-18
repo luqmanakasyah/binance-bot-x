@@ -36,4 +36,6 @@ export interface DailyMetrics {
     other: string;
     count: number;
     updatedAt: number;
+    balance?: string;
+    pctChange?: string;
 }

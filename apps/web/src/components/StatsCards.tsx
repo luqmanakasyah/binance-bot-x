@@ -16,15 +16,27 @@ function formatPercent(val: number) {
 
 function calculateSharpe(dailyData: DailyMetrics[]): number {
     if (dailyData.length < 2) return 0;
-    // Note: This is simplified Sharpe based on Daily PnL Volatility, assuming risk-free rate = 0
-    // returns = daily PnL (absolute)
-    // stdDev of PnL
     const values = dailyData.map(d => parseFloat(d.net));
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
     const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (values.length - 1);
     const stdDev = Math.sqrt(variance);
     if (stdDev === 0) return 0;
     return (mean / stdDev) * Math.sqrt(365);
+}
+
+function calculateMaxDrawdown(dailyData: DailyMetrics[]): number {
+    if (dailyData.length < 2) return 0;
+    // Use balance if available, otherwise accumulate net
+    let cumulative = 0;
+    let peak = 0;
+    let maxDD = 0;
+    for (const d of dailyData) {
+        const bal = d.balance ? parseFloat(d.balance) : (cumulative += parseFloat(d.net));
+        if (bal > peak) peak = bal;
+        const dd = peak > 0 ? (peak - bal) / peak : 0;
+        if (dd > maxDD) maxDD = dd;
+    }
+    return maxDD;
 }
 
 export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dailyData?: DailyMetrics[] }) {
@@ -44,6 +56,9 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
 
     // Sharpe
     const sharpe = calculateSharpe(dailyData || []);
+
+    // Max Drawdown
+    const maxDD = calculateMaxDrawdown(dailyData || []);
 
     // CDGR
     const days = dailyData?.length || 0;
@@ -80,9 +95,13 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
                     forceColor={winRate >= 0.5 ? "text-green-400" : "text-yellow-400"}
                     sub={`(${wins}W / ${losses}L)`} />
 
-                {/* Sharpe Ratio */}
-                <Card title="Sharpe Ratio (Ann.)" value={sharpe} fmt={(v) => v.toFixed(2)}
+                {/* Annualised Sharpe Ratio */}
+                <Card title="Annualised Sharpe Ratio" value={sharpe} fmt={(v) => v.toFixed(2)}
                     forceColor={sharpe > 1 ? "text-green-400" : sharpe > 0 ? "text-blue-400" : "text-gray-400"} />
+
+                {/* Max Drawdown */}
+                <Card title="Max Drawdown" value={-maxDD} fmt={formatPercent}
+                    forceColor={maxDD > 0.1 ? "text-red-400" : maxDD > 0 ? "text-yellow-400" : "text-gray-400"} />
 
                 {/* CDGR */}
                 <Card title="CDGR" value={cdgr} fmt={formatPercent}
