@@ -375,7 +375,7 @@ export default function DashboardPage() {
                 </div>
             </main>
 
-            />
+
 
             {/* Hidden Shareable Board */}
             <div className="absolute top-0 -left-[9999px]">
