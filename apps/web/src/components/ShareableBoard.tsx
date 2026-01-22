@@ -45,9 +45,9 @@ function SmallCard({ title, value, forceColor, sub }: { title: string, value: st
     );
 }
 
-export const ShareableBoard = forwardRef<HTMLDivElement, { data: ShareableBoardData }>(({ data }, ref) => {
+export const ShareableBoard = forwardRef<HTMLDivElement, ShareableBoardProps>(({ data }, ref) => {
     return (
-        <div ref={ref} className="w-[1200px] bg-[#02040a] p-8 text-white">
+        <div ref={ref} className="w-[1200px] bg-[#02040a] p-8 text-white font-sans">
             {/* Grid 3x3 */}
             <div className="grid grid-cols-3 gap-6 mb-8">
                 <SmallCard title="Total PnL (%)" value={data.pnlStr} forceColor={data.pnlColor} />
