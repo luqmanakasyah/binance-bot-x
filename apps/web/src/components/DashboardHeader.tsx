@@ -33,7 +33,7 @@ export function DashboardHeader({ onOpenSettings, isFilterActive }: HeaderProps)
         <header className="border-b border-gray-800 bg-gray-900 px-6 py-4">
             <div className="mx-auto flex max-w-7xl items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Performance Dashboard</h1>
+                    <h1 className="text-2xl font-bold text-white">Performance</h1>
                 </div>
 
                 <div className="flex items-center gap-2">
