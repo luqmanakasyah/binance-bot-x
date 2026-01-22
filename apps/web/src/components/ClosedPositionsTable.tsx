@@ -1,6 +1,5 @@
-
 import { LedgerEvent } from "@/types";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { formatDateTime } from "@/utils/format";
 
 function formatCurrency(val: number) {
@@ -54,9 +53,13 @@ export function ClosedPositionsTable({ events }: { events: LedgerEvent[] }) {
         return list.sort((a, b) => b.closeTime - a.closeTime);
     }, [events]);
 
+    const [expanded, setExpanded] = useState(false);
+
+    const displayedPositions = expanded ? positions : positions.slice(0, 5);
+
     return (
         <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-            <h3 className="mb-4 text-base font-semibold text-gray-200">Recent Closed Positions</h3>
+            <h3 className="mb-4 text-base font-semibold text-gray-200">Trade History</h3>
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm text-gray-400">
                     <thead className="border-b border-gray-800 text-xs uppercase text-gray-500">
@@ -67,14 +70,14 @@ export function ClosedPositionsTable({ events }: { events: LedgerEvent[] }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-800">
-                        {positions.length === 0 ? (
+                        {displayedPositions.length === 0 ? (
                             <tr>
                                 <td colSpan={3} className="px-4 py-4 text-center text-gray-600">
                                     No closed positions found in recent events.
                                 </td>
                             </tr>
                         ) : (
-                            positions.map((pos) => (
+                            displayedPositions.map((pos) => (
                                 <tr key={pos.id} className="hover:bg-gray-800/50">
                                     <td className="px-4 py-3 text-gray-300">{formatDateTime(pos.closeTime)}</td>
                                     <td className="px-4 py-3 font-medium text-white">{pos.symbol}</td>
@@ -87,6 +90,18 @@ export function ClosedPositionsTable({ events }: { events: LedgerEvent[] }) {
                     </tbody>
                 </table>
             </div>
+
+            {positions.length > 5 && (
+                <div className="mt-4 flex justify-center border-t border-gray-800 pt-2">
+                    <button
+                        onClick={() => setExpanded(!expanded)}
+                        className="text-xs font-medium text-blue-400 hover:text-blue-300"
+                    >
+                        {expanded ? "Show Less" : "See More"}
+                    </button>
+                </div>
+            )}
+
             <p className="mt-2 text-xs text-gray-600">
                 * PnL shown is gross Realised PnL.
             </p>

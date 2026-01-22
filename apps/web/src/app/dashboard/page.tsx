@@ -161,6 +161,24 @@ export default function DashboardPage() {
         // Sort ascending by date
         const newDaily = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
 
+        // insert 0% start point (Day before first data point)
+        if (newDaily.length > 0) {
+            const firstDateStr = newDaily[0].date;
+            try {
+                const d = new Date(firstDateStr);
+                d.setDate(d.getDate() - 1); // Yesterday
+                const prevDateStr = d.toISOString().split('T')[0];
+
+                newDaily.unshift({
+                    date: prevDateStr,
+                    net: "0", realisedPnl: "0", funding: "0", commission: "0", transfer: "0", other: "0", count: 0, updatedAt: 0,
+                    cumulativeGrowth: 0 // Explicitly 0
+                });
+            } catch (e) {
+                // Ignore error matching date
+            }
+        }
+
         // Calculate Cumulative Growth
         let runningNet = 0;
         newDaily.forEach(d => {
