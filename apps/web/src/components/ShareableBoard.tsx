@@ -64,8 +64,8 @@ export const ShareableBoard = forwardRef<HTMLDivElement, { data: ShareableBoardD
             </div>
 
             {/* Chart Section */}
-            <div className="rounded-xl border border-blue-900/30 bg-[#0f1118] p-6 h-[400px]">
-                <h3 className="mb-4 text-base font-semibold text-gray-200">Total Growth</h3>
+            <div className="rounded-xl border border-[#1e3a8a4d] bg-[#0f1118] p-6 h-[400px]">
+                <h3 className="mb-4 text-base font-semibold text-[#e5e7eb]">Total Growth</h3>
                 <div className="h-[320px] w-[1080px]">
                     {/* Explicit width to ensure rendering even when off-screen */}
                     <GrowthChart data={data.growthData} />
