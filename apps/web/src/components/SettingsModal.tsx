@@ -80,7 +80,6 @@ export function SettingsModal({ isOpen, onClose, currentRange, onApply }: Settin
                             value={startStr}
                             onChange={(e) => setStartStr(e.target.value)}
                         />
-                        {startStr && <p className="text-xs text-blue-400 font-medium">Selected: {formatDisplay(startStr)}</p>}
                     </div>
 
                     <div className="space-y-2">
@@ -91,7 +90,6 @@ export function SettingsModal({ isOpen, onClose, currentRange, onApply }: Settin
                             value={endStr}
                             onChange={(e) => setEndStr(e.target.value)}
                         />
-                        {endStr && <p className="text-xs text-blue-400 font-medium">Selected: {formatDisplay(endStr)}</p>}
                         <p className="text-xs text-gray-500">Leave empty to include up to now.</p>
                     </div>
                 </div>
