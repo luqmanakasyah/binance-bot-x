@@ -137,6 +137,20 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
                             forceColor={x > 0 ? "text-green-400" : x < 0 ? "text-red-400" : "text-gray-400"} />
                     );
                 })()}
+
+                {/* Edge */}
+                {(() => {
+                    // Formula: (1+g)^(1/N) - 1
+                    // N = Total Trades
+                    const g = growthPct;
+                    const N = totalTrades;
+                    const edge = N > 0 ? (Math.pow(1 + g, 1 / N) - 1) : 0;
+
+                    return (
+                        <Card title="Edge" value={edge} fmt={formatPercent}
+                            forceColor={edge > 0 ? "text-green-400" : edge < 0 ? "text-red-400" : "text-gray-400"} />
+                    );
+                })()}
             </div>
 
         </div>
