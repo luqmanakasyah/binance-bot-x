@@ -114,6 +114,29 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
                 {/* Annual Projected */}
                 <Card title="Annual Projected" value={projectedAnnual} fmt={formatPercent}
                     forceColor={projectedAnnual > 0 ? "text-green-400" : projectedAnnual < 0 ? "text-red-400" : "text-gray-400"} />
+
+                {/* % per win */}
+                {(() => {
+                    // Formula: ((1+x)^w)((1-r)^l)=(1+g)
+                    // x = [ (1+g) / ((1-r)^l) ] ^ (1/w) - 1
+                    const r = 0.001; // 0.1% risk
+                    const g = growthPct;
+                    const w = wins;
+                    const l = losses;
+
+                    let x = 0;
+                    if (w > 0) {
+                        const term1 = 1 + g;
+                        const term2 = Math.pow(1 - r, l);
+                        const ratio = term1 / term2;
+                        x = Math.pow(ratio, 1 / w) - 1;
+                    }
+
+                    return (
+                        <Card title="% per win" value={x} fmt={formatPercent}
+                            forceColor={x > 0 ? "text-green-400" : x < 0 ? "text-red-400" : "text-gray-400"} />
+                    );
+                })()}
             </div>
 
         </div>
