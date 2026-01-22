@@ -27,15 +27,19 @@ export interface ShareableBoardData {
     growthData: DailyMetrics[];
 }
 
+interface ShareableBoardProps {
+    data: ShareableBoardData;
+}
+
 function SmallCard({ title, value, forceColor, sub }: { title: string, value: string, forceColor: string, sub?: string }) {
     return (
-        <div className="flex h-full flex-col justify-center rounded-xl border border-blue-900/30 bg-[#0f1118] p-6 shadow-sm">
-            <h3 className="text-sm font-medium text-gray-400">{title}</h3>
+        <div className="flex h-full flex-col justify-center rounded-xl border border-[#1e3a8a4d] bg-[#0f1118] p-6 shadow-sm">
+            <h3 className="text-sm font-medium text-[#9ca3af]">{title}</h3>
             <div className="mt-2 flex items-baseline gap-2">
-                <span className={`text-3xl font-bold ${forceColor}`}>
+                <span className="text-3xl font-bold" style={{ color: forceColor }}>
                     {value}
                 </span>
-                {sub && <span className="text-sm text-gray-500">{sub}</span>}
+                {sub && <span className="text-sm text-[#6b7280]">{sub}</span>}
             </div>
         </div>
     );
@@ -69,7 +73,7 @@ export const ShareableBoard = forwardRef<HTMLDivElement, { data: ShareableBoardD
             </div>
 
             {/* Footer / Timestamp */}
-            <div className="mt-4 flex justify-between text-xs text-gray-600">
+            <div className="mt-4 flex justify-between text-xs text-[#4b5563]">
                 <span>{new Date().toUTCString()}</span>
                 <span>binance-bot-x</span>
             </div>
