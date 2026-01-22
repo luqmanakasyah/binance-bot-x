@@ -14,7 +14,7 @@ interface HeaderProps {
     onShare?: () => void;
 }
 
-export function DashboardHeader({ onOpenSettings, isFilterActive }: HeaderProps) {
+export function DashboardHeader({ onOpenSettings, isFilterActive, onShare }: HeaderProps) {
     const [loading, setLoading] = useState(false);
 
     const handleRefresh = async () => {
@@ -48,6 +48,14 @@ export function DashboardHeader({ onOpenSettings, isFilterActive }: HeaderProps)
                         )}
                     >
                         <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+                    </button>
+
+                    <button
+                        onClick={onShare}
+                        title="Share Dashboard"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-700 bg-gray-800 text-gray-400 transition hover:bg-gray-700 hover:text-white"
+                    >
+                        <Share2 className="h-4 w-4" />
                     </button>
 
                     <button
