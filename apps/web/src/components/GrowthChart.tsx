@@ -39,7 +39,10 @@ export function GrowthChart({ data }: { data: DailyMetrics[] }) {
                             itemStyle={{ color: "#10b981" }}
                             labelStyle={{ color: "#9ca3af" }}
                             labelFormatter={(label) => formatDate(label)}
-                            formatter={(value: number) => [formatPercent(value), "Growth"]}
+                            formatter={(value: number) => [
+                                value !== undefined ? formatPercent(value) : "0%",
+                                "Growth"
+                            ]}
                         />
                         <ReferenceLine y={0} stroke="#4b5563" />
                         <Area
