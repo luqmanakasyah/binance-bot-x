@@ -58,6 +58,7 @@ export function DashboardHeader({ onOpenSettings, isFilterActive, onShare }: Hea
                         <Share2 className="h-4 w-4" />
                     </button>
 
+
                     <button
                         onClick={onOpenSettings}
                         title="Settings / Filter"
