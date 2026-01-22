@@ -8,9 +8,9 @@ import { auth, db } from "@/lib/firebase";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { StatsCards } from "@/components/StatsCards";
 import { PnLChart } from "@/components/PnLChart";
-import { GrowthChart } from "@/components/GrowthChart";
-import { ClosedPositionsTable } from "@/components/ClosedPositionsTable";
-import { SettingsModal } from "@/components/SettingsModal";
+import { ShareableBoard, ShareableBoardData } from "@/components/ShareableBoard";
+import html2canvas from "html2canvas";
+import { useRef } from "react";
 import { DailyMetrics, LedgerEvent, LiveMetrics } from "@/types";
 
 // Duplicate classify logic here if not available on client
@@ -212,6 +212,94 @@ export default function DashboardPage() {
         return { metrics: newMetrics, dailyData: newDaily, growthData, events: filteredEvents };
     }, [metrics, dailyData, events, dateRange]);
 
+    // Share Functionality
+    const shareRef = useRef<HTMLDivElement>(null);
+
+    const shareData: ShareableBoardData = useMemo(() => {
+        const m = displayData.metrics;
+        const d = displayData.dailyData;
+        const growth = displayData.growthData;
+
+        // Calculations (Mirroring StatsCards)
+        const netTotal = parseFloat(m?.netSinceT0 || "0");
+        const initial = parseFloat(m?.initialBalance || "0");
+        const growthPct = initial > 0 ? (netTotal / initial) : 0;
+
+        const wins = m?.winCount || 0;
+        const losses = m?.lossCount || 0;
+        const totalTrades = wins + losses;
+        const winRate = totalTrades > 0 ? wins / totalTrades : 0;
+
+        const sharpe = calculateSharpe(d);
+        const maxDD = calculateMaxDrawdown(d);
+
+        const days = d.length;
+        const cdgr = days > 0 ? (Math.pow(1 + growthPct, 1 / days) - 1) : 0;
+
+        const proj30 = Math.pow(1 + cdgr, 30) - 1;
+        const projAnn = Math.pow(1 + cdgr, 365) - 1;
+
+        const r = 0.001;
+        let pctPerWin = 0;
+        if (wins > 0) {
+            pctPerWin = Math.pow((1 + growthPct) / Math.pow(1 - r, losses), 1 / wins) - 1;
+        }
+
+        const edge = totalTrades > 0 ? (Math.pow(1 + growthPct, 1 / totalTrades) - 1) : 0;
+
+        // Formatting
+        const sign = netTotal >= 0 ? "+" : "-";
+
+        return {
+            pnlStr: `${sign}${formatCurrency(Math.abs(netTotal))} (${sign}${formatPercent(Math.abs(growthPct))})`,
+            pnlColor: netTotal >= 0 ? "text-green-400" : "text-red-400",
+
+            winRateStr: formatPercent(winRate),
+            winRateColor: winRate >= 0.5 ? "text-green-400" : "text-yellow-400",
+            winLossSub: `(${wins}W / ${losses}L)`,
+
+            sharpe: sharpe.toFixed(2),
+            sharpeColor: sharpe > 1 ? "text-green-400" : sharpe > 0 ? "text-blue-400" : "text-gray-400",
+
+            maxDD: "-" + formatPercent(maxDD),
+            maxDDColor: maxDD > 0.1 ? "text-red-400" : maxDD > 0 ? "text-yellow-400" : "text-gray-400",
+
+            cdgr: formatPercent(cdgr),
+            cdgrColor: cdgr > 0 ? "text-green-400" : cdgr < 0 ? "text-red-400" : "text-gray-400",
+
+            proj30: formatPercent(proj30),
+            proj30Color: proj30 > 0 ? "text-green-400" : proj30 < 0 ? "text-red-400" : "text-gray-400",
+
+            projAnn: formatPercent(projAnn),
+            projAnnColor: projAnn > 0 ? "text-green-400" : projAnn < 0 ? "text-red-400" : "text-gray-400",
+
+            pctPerWin: formatPercent(pctPerWin),
+            pctPerWinColor: pctPerWin > 0 ? "text-green-400" : pctPerWin < 0 ? "text-red-400" : "text-gray-400",
+
+            edge: new Intl.NumberFormat('en-US', { style: 'percent', minimumSignificantDigits: 4, maximumSignificantDigits: 4 }).format(edge),
+            edgeColor: edge > 0 ? "text-green-400" : edge < 0 ? "text-red-400" : "text-gray-400",
+
+            growthData: growth
+        };
+    }, [displayData]);
+
+    const handleShare = async () => {
+        if (!shareRef.current) return;
+        try {
+            const canvas = await html2canvas(shareRef.current, {
+                backgroundColor: "#02040a",
+                scale: 2 // High res
+            });
+            const link = document.createElement("a");
+            link.download = `performance-${new Date().toISOString().slice(0, 10)}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        } catch (e) {
+            console.error("Share failed", e);
+            alert("Failed to generate image.");
+        }
+    };
+
     useEffect(() => {
         const unsubAuth = onAuthStateChanged(auth, (user) => {
             if (!user) {
@@ -267,6 +355,7 @@ export default function DashboardPage() {
                 trackingSince={displayData.metrics?.trackingSinceMs}
                 onOpenSettings={() => setIsSettingsOpen(true)}
                 isFilterActive={!!(dateRange.start || dateRange.end)}
+                onShare={handleShare}
             />
 
             <main className="mx-auto max-w-7xl space-y-6 p-6">
@@ -283,6 +372,13 @@ export default function DashboardPage() {
                 </div>
             </main>
 
+            />
+
+            {/* Hidden Shareable Board */}
+            <div className="absolute top-0 -left-[9999px]">
+                <ShareableBoard ref={shareRef} data={shareData} />
+            </div>
+
             <SettingsModal
                 isOpen={isSettingsOpen}
                 onClose={() => setIsSettingsOpen(false)}
@@ -291,4 +387,57 @@ export default function DashboardPage() {
             />
         </div>
     );
+}
+
+// ----------------------------------------------------------------------
+// Helper functions for stats calculation (Moved/Copied from StatsCards for ShareData)
+// ----------------------------------------------------------------------
+function calculateSharpe(dailyData: DailyMetrics[]): number {
+    if (dailyData.length < 2) return 0;
+    const values = dailyData.map(d => parseFloat(d.net));
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (values.length - 1);
+    const stdDev = Math.sqrt(variance);
+    if (stdDev === 0) return 0;
+    return (mean / stdDev) * Math.sqrt(365);
+}
+
+function calculateMaxDrawdown(dailyData: DailyMetrics[]): number {
+    if (dailyData.length < 2) return 0;
+    let cumulative = 0;
+    let peak = 0;
+    let maxDD = 0;
+    for (const d of dailyData) {
+        // Use balance if available or cumulative net?
+        // StatsCards uses: const bal = d.balance ? parseFloat(d.balance) : (cumulative += parseFloat(d.net));
+        // We must perform exact same logic.
+        const val = parseFloat(d.net);
+        const bal = d.balance ? parseFloat(d.balance) : (cumulative += val);
+
+        if (d.balance) {
+            // If d.balance exists, cumulative logic is not needed for 'bal' but we should keep 'cumulative' var updated if it was used? 
+            // Actually if d.balance exists, we use it. If not, we use cumulative.
+            // But wait, the loop variable `cumulative` needs to track regardless?
+            // No, `cumulative` is only used if `d.balance` is missing.
+            // Ideally we just track cumulative net.
+            cumulative += val; // Wait, I did this line before.
+        } else {
+            // cumulative is already updated.
+        }
+
+        if (bal > peak) peak = bal;
+        const dd = peak > 0 ? (peak - bal) / peak : 0;
+        if (dd > maxDD) maxDD = dd;
+    }
+    return maxDD;
+}
+
+function formatCurrency(val: number) {
+    if (isNaN(val)) return "$0.00";
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+}
+
+function formatPercent(val: number) {
+    if (isNaN(val)) return "0.00%";
+    return new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 2 }).format(val);
 }

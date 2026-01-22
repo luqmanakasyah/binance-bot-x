@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RefreshCw, Settings } from "lucide-react";
+import { RefreshCw, Settings, Share2 } from "lucide-react";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "@/lib/firebase";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ interface HeaderProps {
     trackingSince?: number;
     onOpenSettings?: () => void;
     isFilterActive?: boolean;
+    onShare?: () => void;
 }
 
 export function DashboardHeader({ onOpenSettings, isFilterActive }: HeaderProps) {
