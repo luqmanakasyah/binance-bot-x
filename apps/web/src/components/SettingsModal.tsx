@@ -71,49 +71,49 @@ export function SettingsModal({ isOpen, onClose, currentRange, onApply }: Settin
             <div className="w-full max-w-sm sm:max-w-md rounded-xl border border-gray-800 bg-gray-900 p-6 shadow-2xl">
                 <h2 className="mb-4 text-xl font-bold text-white">Dashboard Settings</h2>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-400">Start Date (UTC)</label>
+                        <label className="block text-sm font-medium text-gray-400">Start Date (UTC)</label>
                         <input
                             type="date"
-                            className="w-full rounded border border-gray-700 bg-gray-950 px-3 py-2 text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none [color-scheme:dark]"
+                            className="w-full appearance-none rounded-lg border border-gray-700 bg-gray-950 px-4 py-3 text-base text-white placeholder-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none [color-scheme:dark]"
                             value={startStr}
                             onChange={(e) => setStartStr(e.target.value)}
                         />
-                        {startStr && <p className="text-xs text-blue-400">Selected: {formatDisplay(startStr)}</p>}
+                        {startStr && <p className="text-xs text-blue-400 font-medium">Selected: {formatDisplay(startStr)}</p>}
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-400">End Date (UTC)</label>
+                        <label className="block text-sm font-medium text-gray-400">End Date (UTC)</label>
                         <input
                             type="date"
-                            className="w-full rounded border border-gray-700 bg-gray-950 px-3 py-2 text-white placeholder-gray-600 focus:border-blue-500 focus:outline-none [color-scheme:dark]"
+                            className="w-full appearance-none rounded-lg border border-gray-700 bg-gray-950 px-4 py-3 text-base text-white placeholder-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none [color-scheme:dark]"
                             value={endStr}
                             onChange={(e) => setEndStr(e.target.value)}
                         />
-                        {endStr && <p className="text-xs text-blue-400">Selected: {formatDisplay(endStr)}</p>}
-                        <p className="text-xs text-gray-600">Leave empty to include up to now.</p>
+                        {endStr && <p className="text-xs text-blue-400 font-medium">Selected: {formatDisplay(endStr)}</p>}
+                        <p className="text-xs text-gray-500">Leave empty to include up to now.</p>
                     </div>
                 </div>
 
-                <div className="mt-8 flex flex-wrap justify-end gap-3">
+                <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                    <button
+                        onClick={onClose}
+                        className="w-full rounded-lg border border-gray-700 px-4 py-3 text-sm font-semibold text-gray-300 hover:bg-gray-800 sm:w-auto sm:py-2"
+                    >
+                        Cancel
+                    </button>
                     <button
                         onClick={handleClear}
-                        className="rounded px-4 py-2 text-sm font-medium text-gray-400 hover:text-white"
+                        className="w-full rounded-lg px-4 py-3 text-sm font-semibold text-gray-400 hover:text-white sm:w-auto sm:py-2"
                     >
-                        Reset
+                        Reset Defaults
                     </button>
                     <button
                         onClick={handleSave}
-                        className="rounded bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500"
+                        className="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-500 sm:w-auto sm:py-2"
                     >
-                        Apply
-                    </button>
-                    <button
-                        onClick={onClose}
-                        className="rounded border border-gray-700 px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-800"
-                    >
-                        Cancel
+                        Apply Changes
                     </button>
                 </div>
             </div>
