@@ -147,7 +147,8 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
                     const edge = N > 0 ? (Math.pow(1 + g, 1 / N) - 1) : 0;
 
                     return (
-                        <Card title="Edge" value={edge} fmt={formatPercent}
+                        <Card title="Edge" value={edge}
+                            fmt={(v) => new Intl.NumberFormat('en-US', { style: 'percent', minimumSignificantDigits: 4, maximumSignificantDigits: 4 }).format(v)}
                             forceColor={edge > 0 ? "text-green-400" : edge < 0 ? "text-red-400" : "text-gray-400"} />
                     );
                 })()}
