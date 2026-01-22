@@ -62,9 +62,8 @@ export const ShareableBoard = forwardRef<HTMLDivElement, { data: ShareableBoardD
             {/* Chart Section */}
             <div className="rounded-xl border border-blue-900/30 bg-[#0f1118] p-6 h-[400px]">
                 <h3 className="mb-4 text-base font-semibold text-gray-200">Total Growth</h3>
-                <div className="h-[320px] w-full">
-                    {/* GrowthChart needs to be responsive to parent, but here parent is fixed width. 
-                        Recharts ResponsiveContainer works based on parent size. */}
+                <div className="h-[320px] w-[1080px]">
+                    {/* Explicit width to ensure rendering even when off-screen */}
                     <GrowthChart data={data.growthData} />
                 </div>
             </div>
