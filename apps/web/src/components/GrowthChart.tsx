@@ -10,8 +10,8 @@ function formatPercent(val: number) {
 
 export function GrowthChart({ data }: { data: DailyMetrics[] }) {
     return (
-        <div className="rounded-lg border border-gray-800 bg-gray-900 p-6">
-            <h3 className="mb-4 text-base font-semibold text-gray-200">Total Growth</h3>
+        <div className="rounded-lg border border-[#1f2937] bg-[#111827] p-6">
+            <h3 className="mb-4 text-base font-semibold text-[#e5e7eb]">Total Growth</h3>
             <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>

@@ -250,37 +250,42 @@ export default function DashboardPage() {
 
         const edge = totalTrades > 0 ? (Math.pow(1 + growthPct, 1 / totalTrades) - 1) : 0;
 
-        // Formatting
+        // Colors (Hex for html2canvas compatibility)
+        const GREEN = "#4ade80";
+        const RED = "#f87171";
+        const YELLOW = "#facc15";
+        const BLUE = "#60a5fa";
+        const GRAY = "#9ca3af";
         const sign = netTotal >= 0 ? "+" : "-";
 
         return {
             pnlStr: `${sign}${formatCurrency(Math.abs(netTotal))} (${sign}${formatPercent(Math.abs(growthPct))})`,
-            pnlColor: netTotal >= 0 ? "text-green-400" : "text-red-400",
+            pnlColor: netTotal >= 0 ? GREEN : RED,
 
             winRateStr: formatPercent(winRate),
-            winRateColor: winRate >= 0.5 ? "text-green-400" : "text-yellow-400",
+            winRateColor: winRate >= 0.5 ? GREEN : YELLOW,
             winLossSub: `(${wins}W / ${losses}L)`,
 
             sharpe: sharpe.toFixed(2),
-            sharpeColor: sharpe > 1 ? "text-green-400" : sharpe > 0 ? "text-blue-400" : "text-gray-400",
+            sharpeColor: sharpe > 1 ? GREEN : sharpe > 0 ? BLUE : GRAY,
 
             maxDD: "-" + formatPercent(maxDD),
-            maxDDColor: maxDD > 0.1 ? "text-red-400" : maxDD > 0 ? "text-yellow-400" : "text-gray-400",
+            maxDDColor: maxDD > 0.1 ? RED : maxDD > 0 ? YELLOW : GRAY,
 
             cdgr: formatPercent(cdgr),
-            cdgrColor: cdgr > 0 ? "text-green-400" : cdgr < 0 ? "text-red-400" : "text-gray-400",
+            cdgrColor: cdgr > 0 ? GREEN : cdgr < 0 ? RED : GRAY,
 
             proj30: formatPercent(proj30),
-            proj30Color: proj30 > 0 ? "text-green-400" : proj30 < 0 ? "text-red-400" : "text-gray-400",
+            proj30Color: proj30 > 0 ? GREEN : proj30 < 0 ? RED : GRAY,
 
             projAnn: formatPercent(projAnn),
-            projAnnColor: projAnn > 0 ? "text-green-400" : projAnn < 0 ? "text-red-400" : "text-gray-400",
+            projAnnColor: projAnn > 0 ? GREEN : projAnn < 0 ? RED : GRAY,
 
             pctPerWin: formatPercent(pctPerWin),
-            pctPerWinColor: pctPerWin > 0 ? "text-green-400" : pctPerWin < 0 ? "text-red-400" : "text-gray-400",
+            pctPerWinColor: pctPerWin > 0 ? GREEN : pctPerWin < 0 ? RED : GRAY,
 
             edge: new Intl.NumberFormat('en-US', { style: 'percent', minimumSignificantDigits: 4, maximumSignificantDigits: 4 }).format(edge),
-            edgeColor: edge > 0 ? "text-green-400" : edge < 0 ? "text-red-400" : "text-gray-400",
+            edgeColor: edge > 0 ? GREEN : edge < 0 ? RED : GRAY,
 
             growthData: growth
         };
