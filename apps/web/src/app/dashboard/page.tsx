@@ -291,15 +291,21 @@ export default function DashboardPage() {
         try {
             const canvas = await html2canvas(shareRef.current, {
                 backgroundColor: "#02040a",
-                scale: 2 // High res
+                scale: 2, // High res
+                useCORS: true,
+                logging: false,
+                onclone: (clonedDoc) => {
+                    const el = clonedDoc.querySelector("[data-share-board]") as HTMLElement;
+                    if (el) el.style.display = "block";
+                }
             });
             const link = document.createElement("a");
             link.download = `performance-${new Date().toISOString().slice(0, 10)}.png`;
             link.href = canvas.toDataURL("image/png");
             link.click();
-        } catch (e) {
+        } catch (e: any) {
             console.error("Share failed", e);
-            alert("Failed to generate image.");
+            alert("Failed to generate image: " + (e.message || e));
         }
     };
 
@@ -377,9 +383,11 @@ export default function DashboardPage() {
 
 
 
-            {/* Hidden Shareable Board */}
-            <div className="absolute top-0 -left-[9999px]">
-                <ShareableBoard ref={shareRef} data={shareData} />
+            {/* Hidden Shareable Board - Fixed position prevents layout shift and culling issues */}
+            <div className="fixed top-0 left-[-9999px] overflow-hidden">
+                <div data-share-board>
+                    <ShareableBoard ref={shareRef} data={shareData} />
+                </div>
             </div>
 
             <SettingsModal
