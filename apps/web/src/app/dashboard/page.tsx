@@ -161,7 +161,15 @@ export default function DashboardPage() {
         // Sort ascending by date
         const newDaily = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
 
-        // insert 0% start point (Day before first data point)
+        // Calculate Cumulative Growth (on clean data)
+        let runningNet = 0;
+        newDaily.forEach(d => {
+            runningNet += parseFloat(d.net);
+            d.cumulativeGrowth = adjustedInitial > 0 ? (runningNet / adjustedInitial) * 100 : 0;
+        });
+
+        // Create Growth Data with Anchor Point (Start Date - 1, 0%)
+        let growthData = [...newDaily];
         if (newDaily.length > 0) {
             const firstDateStr = newDaily[0].date;
             try {
@@ -169,22 +177,18 @@ export default function DashboardPage() {
                 d.setDate(d.getDate() - 1); // Yesterday
                 const prevDateStr = d.toISOString().split('T')[0];
 
-                newDaily.unshift({
+                growthData.unshift({
                     date: prevDateStr,
                     net: "0", realisedPnl: "0", funding: "0", commission: "0", transfer: "0", other: "0", count: 0, updatedAt: 0,
                     cumulativeGrowth: 0 // Explicitly 0
                 });
             } catch (e) {
-                // Ignore error matching date
+                // Ignore
             }
+        } else {
+            // If no data, maybe add anchor at Start Date if known? Or just leave empty.
+            // If dateRange.start is set, we could show that. But for now leave empty if no data.
         }
-
-        // Calculate Cumulative Growth
-        let runningNet = 0;
-        newDaily.forEach(d => {
-            runningNet += parseFloat(d.net);
-            d.cumulativeGrowth = adjustedInitial > 0 ? (runningNet / adjustedInitial) * 100 : 0;
-        });
 
         const newMetrics: LiveMetrics = {
             trackingSinceMs: start,
@@ -205,7 +209,7 @@ export default function DashboardPage() {
             lossCount: losses
         };
 
-        return { metrics: newMetrics, dailyData: newDaily, events: filteredEvents };
+        return { metrics: newMetrics, dailyData: newDaily, growthData, events: filteredEvents };
     }, [metrics, dailyData, events, dateRange]);
 
     useEffect(() => {
@@ -270,7 +274,7 @@ export default function DashboardPage() {
                 <StatsCards metrics={displayData.metrics} dailyData={displayData.dailyData} />
 
                 {/* Growth Chart */}
-                <GrowthChart data={displayData.dailyData} />
+                <GrowthChart data={displayData.growthData} />
 
                 {/* Daily Net Chart & Table */}
                 <div className="grid gap-6 lg:grid-cols-2">
