@@ -38,4 +38,5 @@ export interface DailyMetrics {
     updatedAt: number;
     balance?: string;
     pctChange?: string;
+    cumulativeGrowth?: number; // Calculated on client for charting
 }
