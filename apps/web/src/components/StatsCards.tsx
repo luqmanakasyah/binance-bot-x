@@ -14,12 +14,33 @@ function formatPercent(val: number) {
     return new Intl.NumberFormat('en-US', { style: 'percent', minimumFractionDigits: 2 }).format(val);
 }
 
-function calculateSharpe(dailyData: DailyMetrics[]): number {
+function calculateSharpe(dailyData: DailyMetrics[], initialBalance: number): number {
     if (dailyData.length < 2) return 0;
-    const values = dailyData.map(d => parseFloat(d.net));
-    const mean = values.reduce((a, b) => a + b, 0) / values.length;
-    const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (values.length - 1);
+
+    let currentBalance = initialBalance;
+    const dailyReturns: number[] = [];
+
+    dailyData.forEach(d => {
+        const net = parseFloat(d.net || "0");
+        if (currentBalance > 0) {
+            dailyReturns.push(net / currentBalance);
+        } else {
+            dailyReturns.push(0);
+        }
+
+        // Update balance for next day (approximate, since we don't have exact daily balance history here easily without recalculating everything)
+        // Better to use d.balance if available?
+        // Logic: if d.balance is available, use it for NEXT day's denominator? 
+        // Actually, Sharpe is return on STARTING capital for that period.
+        // Let's stick to the plan: update running balance.
+        const bal = d.balance ? parseFloat(d.balance) : (currentBalance + net);
+        currentBalance = bal;
+    });
+
+    const mean = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
+    const variance = dailyReturns.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (dailyReturns.length - 1);
     const stdDev = Math.sqrt(variance);
+
     if (stdDev === 0) return 0;
     return (mean / stdDev) * Math.sqrt(365);
 }
@@ -56,7 +77,7 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     const winRate = totalTrades > 0 ? wins / totalTrades : 0;
 
     // Sharpe
-    const sharpe = calculateSharpe(dailyData || []);
+    const sharpe = calculateSharpe(dailyData || [], initial);
 
     // Max Drawdown
     const maxDD = calculateMaxDrawdown(dailyData || [], initial);
