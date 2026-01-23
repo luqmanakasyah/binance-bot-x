@@ -442,7 +442,7 @@ function calculateMaxDrawdown(dailyData: DailyMetrics[]): number {
         }
 
         if (bal > peak) peak = bal;
-        const dd = peak > 0 ? (peak - bal) / peak : 0;
+        const dd = peak > 0 ? (peak - bal) : 0;
         if (dd > maxDD) maxDD = dd;
     }
     return maxDD;
