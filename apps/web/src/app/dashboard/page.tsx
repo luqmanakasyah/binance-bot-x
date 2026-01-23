@@ -234,7 +234,7 @@ export default function DashboardPage() {
         const winRate = totalTrades > 0 ? wins / totalTrades : 0;
 
         const sharpe = calculateSharpe(d);
-        const maxDD = calculateMaxDrawdown(d);
+        const maxDD = calculateMaxDrawdown(d, initial);
 
         const days = d.length;
         const cdgr = days > 0 ? (Math.pow(1 + growthPct, 1 / days) - 1) : 0;
@@ -410,7 +410,7 @@ export default function DashboardPage() {
 // ----------------------------------------------------------------------
 function calculateSharpe(dailyData: DailyMetrics[]): number {
     if (dailyData.length < 2) return 0;
-    const values = dailyData.map(d => parseFloat(d.net));
+    const values = dailyData.map(d => parseFloat(d.net || "0"));
     const mean = values.reduce((a, b) => a + b, 0) / values.length;
     const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (values.length - 1);
     const stdDev = Math.sqrt(variance);
@@ -418,31 +418,20 @@ function calculateSharpe(dailyData: DailyMetrics[]): number {
     return (mean / stdDev) * Math.sqrt(365);
 }
 
-function calculateMaxDrawdown(dailyData: DailyMetrics[]): number {
+function calculateMaxDrawdown(dailyData: DailyMetrics[], initialBalance: number): number {
     if (dailyData.length < 2) return 0;
-    let cumulative = 0;
-    let peak = 0;
+    let cumulative = initialBalance;
+    let peak = initialBalance;
     let maxDD = 0;
     for (const d of dailyData) {
         // Use balance if available or cumulative net?
         // StatsCards uses: const bal = d.balance ? parseFloat(d.balance) : (cumulative += parseFloat(d.net));
         // We must perform exact same logic.
-        const val = parseFloat(d.net);
+        const val = parseFloat(d.net || "0");
         const bal = d.balance ? parseFloat(d.balance) : (cumulative += val);
 
-        if (d.balance) {
-            // If d.balance exists, cumulative logic is not needed for 'bal' but we should keep 'cumulative' var updated if it was used? 
-            // Actually if d.balance exists, we use it. If not, we use cumulative.
-            // But wait, the loop variable `cumulative` needs to track regardless?
-            // No, `cumulative` is only used if `d.balance` is missing.
-            // Ideally we just track cumulative net.
-            cumulative += val; // Wait, I did this line before.
-        } else {
-            // cumulative is already updated.
-        }
-
         if (bal > peak) peak = bal;
-        const dd = peak > 0 ? (peak - bal) : 0;
+        const dd = peak > 0 ? (peak - bal) / peak : 0;
         if (dd > maxDD) maxDD = dd;
     }
     return maxDD;

@@ -24,14 +24,15 @@ function calculateSharpe(dailyData: DailyMetrics[]): number {
     return (mean / stdDev) * Math.sqrt(365);
 }
 
-function calculateMaxDrawdown(dailyData: DailyMetrics[]): number {
+function calculateMaxDrawdown(dailyData: DailyMetrics[], initialBalance: number): number {
     if (dailyData.length < 2) return 0;
     // Use balance if available, otherwise accumulate net
-    let cumulative = 0;
-    let peak = 0;
+    let cumulative = initialBalance;
+    let peak = initialBalance;
     let maxDD = 0;
     for (const d of dailyData) {
-        const bal = d.balance ? parseFloat(d.balance) : (cumulative += parseFloat(d.net));
+        const val = parseFloat(d.net || "0");
+        const bal = d.balance ? parseFloat(d.balance) : (cumulative += val);
         if (bal > peak) peak = bal;
         const dd = peak > 0 ? (peak - bal) / peak : 0;
         if (dd > maxDD) maxDD = dd;
@@ -58,7 +59,7 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     const sharpe = calculateSharpe(dailyData || []);
 
     // Max Drawdown
-    const maxDD = calculateMaxDrawdown(dailyData || []);
+    const maxDD = calculateMaxDrawdown(dailyData || [], initial);
 
     // CDGR
     const days = dailyData?.length || 0;
