@@ -234,7 +234,8 @@ export default function DashboardPage() {
         const winRate = totalTrades > 0 ? wins / totalTrades : 0;
 
         const sharpe = calculateSharpe(d, initial);
-        const maxDD = calculateMaxDrawdown(d, initial);
+        // Use filtered events for intra-day DD
+        const maxDD = calculateIntraDayDrawdown(displayData.events, initial);
 
         const days = d.length;
         const cdgr = days > 0 ? (Math.pow(1 + growthPct, 1 / days) - 1) : 0;
@@ -374,7 +375,7 @@ export default function DashboardPage() {
 
             <main className="mx-auto max-w-7xl space-y-6 p-6">
                 {/* Top Stats */}
-                <StatsCards metrics={displayData.metrics} dailyData={displayData.dailyData} />
+                <StatsCards metrics={displayData.metrics} dailyData={displayData.dailyData} events={displayData.events} />
 
                 {/* Growth Chart */}
                 <GrowthChart data={displayData.growthData} />
@@ -434,22 +435,29 @@ function calculateSharpe(dailyData: DailyMetrics[], initialBalance: number): num
     return (mean / stdDev) * Math.sqrt(365);
 }
 
-function calculateMaxDrawdown(dailyData: DailyMetrics[], initialBalance: number): number {
-    if (dailyData.length < 2) return 0;
-    let cumulative = initialBalance;
-    let peak = initialBalance;
-    let maxDD = 0;
-    for (const d of dailyData) {
-        // Use balance if available or cumulative net?
-        // StatsCards uses: const bal = d.balance ? parseFloat(d.balance) : (cumulative += parseFloat(d.net));
-        // We must perform exact same logic.
-        const val = parseFloat(d.net || "0");
-        const bal = d.balance ? parseFloat(d.balance) : (cumulative += val);
+function calculateIntraDayDrawdown(events: LedgerEvent[], initialBalance: number): number {
+    if (events.length === 0) return 0;
 
-        if (bal > peak) peak = bal;
-        const dd = peak > 0 ? (peak - bal) / peak : 0;
+    const sortedEvents = [...events].sort((a, b) => a.tsMs - b.tsMs);
+
+    let currentEquity = initialBalance;
+    let peakEquity = initialBalance;
+    let maxDD = 0;
+
+    for (const e of sortedEvents) {
+        if (e.incomeType === "TRANSFER") continue;
+
+        const val = parseFloat(e.amount);
+        currentEquity += val;
+
+        if (currentEquity > peakEquity) {
+            peakEquity = currentEquity;
+        }
+
+        const dd = peakEquity > 0 ? (peakEquity - currentEquity) / peakEquity : 0;
         if (dd > maxDD) maxDD = dd;
     }
+
     return maxDD;
 }
 

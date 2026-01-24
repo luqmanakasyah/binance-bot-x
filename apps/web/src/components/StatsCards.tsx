@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { LiveMetrics, DailyMetrics } from "@/types";
+import { LiveMetrics, DailyMetrics, LedgerEvent } from "@/types";
 
 function formatCurrency(val: number | string) {
     const num = typeof val === 'string' ? parseFloat(val) : val;
@@ -45,23 +45,54 @@ function calculateSharpe(dailyData: DailyMetrics[], initialBalance: number): num
     return (mean / stdDev) * Math.sqrt(365);
 }
 
-function calculateMaxDrawdown(dailyData: DailyMetrics[], initialBalance: number): number {
-    if (dailyData.length < 2) return 0;
-    // Use balance if available, otherwise accumulate net
-    let cumulative = initialBalance;
-    let peak = initialBalance;
+function calculateIntraDayDrawdown(events: LedgerEvent[], initialBalance: number): number {
+    if (events.length === 0) return 0;
+
+    // Sort events by time asc (oldest first)
+    // Note: events passed from page might be sorted desc, so we copy and sort.
+    const sortedEvents = [...events].sort((a, b) => a.tsMs - b.tsMs);
+
+    let currentEquity = initialBalance;
+    let peakEquity = initialBalance;
     let maxDD = 0;
-    for (const d of dailyData) {
-        const val = parseFloat(d.net || "0");
-        const bal = d.balance ? parseFloat(d.balance) : (cumulative += val);
-        if (bal > peak) peak = bal;
-        const dd = peak > 0 ? (peak - bal) / peak : 0;
+
+    for (const e of sortedEvents) {
+        // Skip TRANSFERS for performance calculation if we only care about trading DD
+        // However, transfers affect equity. If I withdraw half my account, is that a drawdown?
+        // Usually NO for performance. 
+        // But if we track equity curve, a withdrawal drops equity.
+        // Standard approach: Time-Weighted Return or adjust for flows.
+        // For simplicity and matching current logic (where daily net includes transfers but we classify them separately),
+        // let's stick to TRADING drawdown.
+        // In page.tsx: classify(type) -> 'transfer'.
+        // If we want trading drawdown only, we should ignore transfers in equity curve?
+        // No, equity changes with transfers. But performance DD shouldn't count it.
+        // Let's filter out transfers for PnL-based DD?
+        // Actually, let's keep it simple: If I lose money, it's a drawdown. Transfers are not losses.
+        // But removing money reduces equity.
+        // Let's exclude transfers from the 'val' impact on equity for the sake of 'Trading MaxDD' 
+        // OR handle them as external flows.
+        // Given current simplified scope: Exclude 'TRANSFER' types from this calculation entirely 
+        // assuming they are funding/withdrawals.
+
+        const type = e.incomeType;
+        if (type === "TRANSFER") continue;
+
+        const val = parseFloat(e.amount);
+        currentEquity += val;
+
+        if (currentEquity > peakEquity) {
+            peakEquity = currentEquity;
+        }
+
+        const dd = peakEquity > 0 ? (peakEquity - currentEquity) / peakEquity : 0;
         if (dd > maxDD) maxDD = dd;
     }
+
     return maxDD;
 }
 
-export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dailyData?: DailyMetrics[] }) {
+export function StatsCards({ metrics, dailyData, events }: { metrics?: LiveMetrics, dailyData?: DailyMetrics[], events?: LedgerEvent[] }) {
     const netTotal = parseFloat(metrics?.netSinceT0 || "0");
     const netToday = parseFloat(metrics?.netToday || "0");
     const net7d = parseFloat(metrics?.net7d || "0");
@@ -80,7 +111,8 @@ export function StatsCards({ metrics, dailyData }: { metrics?: LiveMetrics, dail
     const sharpe = calculateSharpe(dailyData || [], initial);
 
     // Max Drawdown
-    const maxDD = calculateMaxDrawdown(dailyData || [], initial);
+    // Prefer intra-day if events available
+    const maxDD = events ? calculateIntraDayDrawdown(events, initial) : 0;
 
     // CDGR
     const days = dailyData?.length || 0;
