@@ -47,7 +47,7 @@ function SmallCard({ title, value, forceColor, sub }: { title: string, value: st
 
 export const ShareableBoard = forwardRef<HTMLDivElement, ShareableBoardProps>(({ data }, ref) => {
     return (
-        <div ref={ref} className="w-[1200px] bg-[#02040a] p-8 text-white font-sans">
+        <div ref={ref} className="w-[1600px] bg-[#02040a] p-8 text-white font-sans">
             {/* Grid 3x3 */}
             <div className="grid grid-cols-3 gap-6 mb-8">
                 <SmallCard title="Total PnL (%)" value={data.pnlStr} forceColor={data.pnlColor} />
@@ -63,12 +63,23 @@ export const ShareableBoard = forwardRef<HTMLDivElement, ShareableBoardProps>(({
                 <SmallCard title="Edge" value={data.edge} forceColor={data.edgeColor} />
             </div>
 
-            {/* Chart Section */}
-            <div className="rounded-xl border border-[#1e3a8a4d] bg-[#0f1118] p-6 h-[400px]">
-                <h3 className="mb-4 text-base font-semibold text-[#e5e7eb]">Total Growth</h3>
-                <div className="h-[320px] w-[1080px]">
-                    {/* Explicit width to ensure rendering even when off-screen */}
-                    <GrowthChart data={data.growthData} />
+            {/* Charts Section */}
+            <div className="grid grid-cols-2 gap-6 h-[400px]">
+                {/* Total Growth */}
+                <div className="rounded-xl border border-[#1e3a8a4d] bg-[#0f1118] p-6">
+                    <h3 className="mb-4 text-base font-semibold text-[#e5e7eb]">Total Growth</h3>
+                    <div className="h-[320px] w-full">
+                        <GrowthChart data={data.growthData} />
+                    </div>
+                </div>
+
+                {/* Daily Net PnL - Recreated AreaChart style from PnLChart but inline with hex */}
+                <div className="rounded-xl border border-[#1e3a8a4d] bg-[#0f1118] p-6">
+                    <h3 className="mb-4 text-base font-semibold text-[#e5e7eb]">Daily Net PnL</h3>
+                    <div className="h-[320px] w-full">
+                        {/* Inline Chart Implementation */}
+                        <GrowthChart data={data.growthData} showNet={true} />
+                    </div>
                 </div>
             </div>
 
