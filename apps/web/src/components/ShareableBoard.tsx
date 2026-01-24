@@ -64,23 +64,13 @@ export const ShareableBoard = forwardRef<HTMLDivElement, ShareableBoardProps>(({
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-2 gap-6 h-[400px]">
+            {/* Charts Section */}
+            <div className="grid grid-cols-2 gap-6">
                 {/* Total Growth */}
-                <div className="rounded-xl border border-[#1e3a8a4d] bg-[#0f1118] p-6">
-                    <h3 className="mb-4 text-base font-semibold text-[#e5e7eb]">Total Growth</h3>
-                    <div className="h-[320px] w-full">
-                        <GrowthChart data={data.growthData} />
-                    </div>
-                </div>
+                <GrowthChart data={data.growthData} heightClass="h-80" />
 
-                {/* Daily Net PnL - Recreated AreaChart style from PnLChart but inline with hex */}
-                <div className="rounded-xl border border-[#1e3a8a4d] bg-[#0f1118] p-6">
-                    <h3 className="mb-4 text-base font-semibold text-[#e5e7eb]">Daily Net PnL</h3>
-                    <div className="h-[320px] w-full">
-                        {/* Inline Chart Implementation */}
-                        <GrowthChart data={data.growthData} showNet={true} />
-                    </div>
-                </div>
+                {/* Daily Net PnL */}
+                <GrowthChart data={data.growthData} showNet={true} heightClass="h-80" />
             </div>
 
             {/* Footer / Timestamp */}

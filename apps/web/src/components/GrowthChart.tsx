@@ -12,7 +12,7 @@ function formatCurrency(val: number) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
 }
 
-export function GrowthChart({ data, showNet = false }: { data: DailyMetrics[], showNet?: boolean }) {
+export function GrowthChart({ data, showNet = false, heightClass = "h-64" }: { data: DailyMetrics[], showNet?: boolean, heightClass?: string }) {
     // Configuration based on mode
     const title = showNet ? "Daily Net PnL" : "Total Growth";
     const dataKey = showNet ? "net" : "cumulativeGrowth";
@@ -30,9 +30,9 @@ export function GrowthChart({ data, showNet = false }: { data: DailyMetrics[], s
     return (
         <div className="rounded-lg border border-[#1f2937] bg-[#111827] p-6">
             <h3 className="mb-4 text-base font-semibold text-[#e5e7eb]">{title}</h3>
-            <div className="h-64 w-full">
+            <div className={`${heightClass} w-full`}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
                         <defs>
                             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor={color} stopOpacity={0.3} />
