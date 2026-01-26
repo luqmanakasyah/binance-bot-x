@@ -54,7 +54,7 @@ export function GrowthChart({ data, showNet = false, heightClass = "h-64" }: { d
                             domain={
                                 showNet
                                     ? ['auto', 'auto']
-                                    : ([dataMin, dataMax]) => [0, (dataMax * 1.1).toFixed(2)]
+                                    : ([dataMin, dataMax]) => [0, Math.ceil(dataMax * 1.1 * 100) / 100]
                             }
                         />
                         <Tooltip
