@@ -51,11 +51,7 @@ export function GrowthChart({ data, showNet = false, heightClass = "h-64" }: { d
                             stroke="#6b7280"
                             fontSize={12}
                             tickFormatter={YAxisFormatter}
-                            domain={
-                                showNet
-                                    ? ['auto', 'auto']
-                                    : ([dataMin, dataMax]) => [0, Math.ceil(dataMax * 1.1 * 100) / 100]
-                            }
+                            domain={['auto', 'auto']}
                         />
                         <Tooltip
                             contentStyle={{ backgroundColor: "#111827", borderColor: "#374151" }}
